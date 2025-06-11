@@ -1,5 +1,8 @@
+import sudoku.view
+
+
 def main():
-    print("Hello from sudoku!")
+    view = sudoku.view.MainApp()
 
 
 if __name__ == "__main__":
