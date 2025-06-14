@@ -1,5 +1,4 @@
 import random
-from collections import deque
 
 
 class SudokuModel:
@@ -25,20 +24,30 @@ class SolutionGenerator:
         self._GRID = 81
 
     def create(self) -> tuple[int, ...]:
-        row = deque(range(1, 10, 1))
-        solution = []
+        _shuffle = lambda nums: random.sample(nums, len(nums))
 
-        for _ in range(3):
-            for _ in range(3):
-                solution += list(row)
-                row.rotate(-3)
-            row.rotate(1)
+        n = [0, 1, 2]
+        column_order = tuple(g * 3 + c
+            for g in _shuffle(n)
+            for c in _shuffle(n)
+        )
 
-        return tuple(solution)
+        row_order = tuple(g * 3 + r
+            for g in _shuffle(n)
+            for r in _shuffle(n)
+        )
+
+        _apply_pattern = lambda r, c: (3 * (r % 3) + r // 3 + c) % 9
+
+        shuffled = _shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solution = tuple(
+            shuffled[_apply_pattern(r, c)]
+            for c in column_order
+            for r in row_order
+        )
+        return solution
 
 
 class BoardGenerator:
     def __init__(self) -> None:
         pass
-
-SolutionGenerator().create()
