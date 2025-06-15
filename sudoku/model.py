@@ -3,7 +3,7 @@ import random
 
 class SudokuModel:
     def __init__(self) -> None:
-        self._solution_generator = SolutionGenerator
+        self._solution_generator = SolutionGenerator(rng=random)
 
         self._solution: tuple[int, ...] | None = None
         self._game_board: list[int] | None = None
@@ -18,6 +18,9 @@ class SudokuModel:
 
 
 class SolutionGenerator:
+    def __init__(self, rng=random) -> None:
+        self.rng = rng
+
     def create(self) -> tuple[int, ...]:
         """
         Returns a valid sudoku solution as a 1D tuple of 81 elements,
@@ -52,7 +55,7 @@ class SolutionGenerator:
     def _shuffle(self, numbers: list[int]) -> list[int]:
         """Shuffles the order of elements in a list. Only used for integers, but would work with other types"""
 
-        return random.sample(numbers, len(numbers))
+        return self.rng.sample(numbers, len(numbers))
 
 
 class BoardGenerator:
