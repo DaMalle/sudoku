@@ -5,15 +5,15 @@ class SudokuModel:
     def __init__(self) -> None:
         self._solution_generator = SolutionGenerator(rng=random)
 
-        self._solution: tuple[int, ...] | None = None
-        self._game_board: list[int] | None = None
+        self._solution: tuple[tuple[int, ...], ...] | None = None
+        self._game_board: list[list[int]] | None = None
 
     @property
-    def board(self) -> list[int] | None:
+    def board(self) -> list[list[int]] | None:
         return self._game_board
 
     @property
-    def solution(self) -> tuple[int, ...] | None:
+    def solution(self) -> tuple[tuple[int, ...], ...] | None:
         return self._solution
 
 
@@ -21,7 +21,7 @@ class SolutionGenerator:
     def __init__(self, rng=random) -> None:
         self.rng = rng
 
-    def create(self) -> tuple[int, ...]:
+    def create(self) -> tuple[tuple[int, ...], ...]:
         """
         Returns a valid sudoku solution as a 1D tuple of 81 elements,
         where each group of 9 represents a row.
@@ -46,8 +46,7 @@ class SolutionGenerator:
         seed = self._shuffle(list(range(1, 10, 1))) # numbers for the first row, with unshuffled columns
 
         solution = tuple(
-            seed[pattern(r, c)]
-            for c in column_order
+            tuple(seed[pattern(r, c)] for c in column_order)
             for r in row_order
         )
         return solution
@@ -61,3 +60,5 @@ class SolutionGenerator:
 class BoardGenerator:
     def __init__(self) -> None:
         pass
+
+print(SolutionGenerator().create())
