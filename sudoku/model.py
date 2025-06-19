@@ -29,8 +29,10 @@ class SolutionGenerator:
 
         n = [0, 1, 2]
 
-        # Column groups are [ 0, 1, 2 | 3, 4, 5 | 6, 7, 8 ], split based on which box the column is in.
-        # column_order shuffles the order of the column within each group and the order of the groups
+        # Column groups are [ 0, 1, 2 | 3, 4, 5 | 6, 7, 8 ],
+        # split based on which box the column is in.
+        # column_order shuffles the order of the column within each group
+        # and the order of the groups
         # Example: [ 2, 1, 0 | 7, 6, 8 | 4, 3, 5 ]
         column_order = tuple(group * 3 + column
             for group in self._shuffle(n)
@@ -43,7 +45,7 @@ class SolutionGenerator:
         )
 
         pattern = lambda r, c: (3 * (r % 3) + r // 3 + c) % 9
-        seed = self._shuffle(list(range(1, 10, 1))) # numbers for the first row, with unshuffled columns
+        seed = self._shuffle(list(range(1, 10, 1)))
 
         solution = tuple(
             tuple(seed[pattern(r, c)] for c in column_order)
@@ -52,13 +54,14 @@ class SolutionGenerator:
         return solution
 
     def _shuffle(self, numbers: list[int]) -> list[int]:
-        """Shuffles the order of elements in a list. Only used for integers, but would work with other types"""
+        """
+        Shuffles the order of elements in a list. Only used for integers,
+        but would work with other types
+        """
 
         return self.rng.sample(numbers, len(numbers))
 
 
 class BoardGenerator:
-    def __init__(self) -> None:
-        pass
-
-print(SolutionGenerator().create())
+    def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
+        self.solution = solution
