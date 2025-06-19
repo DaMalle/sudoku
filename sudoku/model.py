@@ -4,8 +4,6 @@ from copy import deepcopy
 
 class SudokuModel:
     def __init__(self) -> None:
-        self._solution_generator = SolutionGenerator(rng=random)
-
         self._solution: tuple[tuple[int, ...], ...] | None = None
         self._game_board: list[list[int]] | None = None
 
@@ -62,10 +60,22 @@ class SolutionGenerator:
 
 class BoardGenerator:
     def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
-        self.solution = solution
+        self._solution = solution
+        self._solver = SudokuSolver
 
-    def create(self) -> list[list[int]] | None: #TODO: finish
-        return
+    def create(self) -> list[list[int]] | None:
+
+        board = [list(row) for row in self._solution]
+        self._unfill_cells(board, 20)
+        board_copy = deepcopy(board)
+
+        if self._solver(board).solve():
+            return board_copy
+        return None
+
+    def _unfill_cells(self, board: list[list[int]], unfill_count: int = 0) -> None:
+        for i in random.sample(range(81), unfill_count):
+            board[i // 9][i % 9] = 0
 
 
 class SudokuSolver:
@@ -106,11 +116,10 @@ class SudokuSolver:
             return False
 
         # Check 3x3 box
-        start_row, start_col = 3 * (row_index // 3), 3 * (column_index // 3)
-        for r in range(3):
-            for c in range(3):
-                if self.board[start_row + r][start_col + c] == num:
-                    return False
+        x0 = (row_index // 3) * 3
+        y0 = (column_index // 3) * 3
+        if num in (self.board[x0+c][y0+r] for c in range(3) for r in range(3)):
+            return False
         return True
 
 if __name__ == "__main__":
@@ -128,5 +137,9 @@ if __name__ == "__main__":
 
     solver = SudokuSolver(board=puzzle)
     solver.solve()
-    for row in solver.board:
-        print(row)
+    # for row in solver.board:
+        # print(row)
+    new_board = BoardGenerator(tuple(tuple(row) for row in solver.board)).create()
+    if new_board:
+        for row in new_board:
+            print(row)
