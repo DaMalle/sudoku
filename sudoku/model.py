@@ -74,6 +74,8 @@ class SudokuSolver:
         self.EMPTY_CELL = 0
 
     def solve(self) -> bool:
+        """Recursive solver using backtracking"""
+
         empty = self._find_empty()
         if empty is None:
             return True
@@ -95,6 +97,8 @@ class SudokuSolver:
         return None
 
     def _is_valid(self, num: int, row_index: int, column_index: int) -> bool:
+        """Check if num is a valid number for the row, column and box"""
+
         # Check row and column
         if num in self.board[row_index]:
             return False
