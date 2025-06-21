@@ -1,6 +1,6 @@
 # Sudoku Game in Python (Tkinter)
 
-A simple Sudoku game built using Python's standard libraries, with a graphical user interface powered by Tkinter. The application follows the **Model-View-Controller (MVC)** design pattern.
+A simple Sudoku game built using Python's standard libraries, with a graphical user interface made in Tkinter. The application follows the **Model-View-Controller (MVC)** design pattern.
 
 ---
 
