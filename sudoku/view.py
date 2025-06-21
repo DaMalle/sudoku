@@ -16,6 +16,7 @@ class Board(tk.Canvas):
         self.root = root
         self._configure_widget()
         self._draw()
+        self.draw_cursor(0, 0)
 
     def _draw(self) -> None:
         """Draw the grid lines for the sudoku board"""
@@ -51,6 +52,23 @@ class Board(tk.Canvas):
         self["bg"] = "white"
         self["width"] = Length.BOARD.value
         self["height"] = Length.BOARD.value
+
+    def draw_cursor(self, x: int, y: int) -> None:
+        """Draws a red square (cursor) at (x,y)"""
+
+        self.delete("cursor") # delete old cursor if any
+
+        y0 = Length.MARGIN.value + y * Length.CELL.value
+        x0 = Length.MARGIN.value + x * Length.CELL.value
+
+        self.create_rectangle(
+            x0 + 1,
+            y0 + 1,
+            x0 + Length.CELL.value - 1,
+            y0 + Length.CELL.value - 1,
+            width=2, outline="red", tags="cursor")
+
+
 
 
 class MainApp(tk.Tk):
