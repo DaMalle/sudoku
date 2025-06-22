@@ -58,30 +58,24 @@ class SolutionGenerator:
         return self.rng.sample(numbers, len(numbers))
 
 
-class BoardGenerator:
-    def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
-        self._solution = solution
-        self._solver = SudokuSolver
-
-    def create(self) -> list[list[int]] | None:
-
-        board = [list(row) for row in self._solution]
-        self._unfill_cells(board, 20)
-        board_copy = deepcopy(board)
-
-        if self._solver(board).solve():
-            return board_copy
-        return None
-
-    def _unfill_cells(self, board: list[list[int]], unfill_count: int = 0) -> None:
-        for i in random.sample(range(81), unfill_count):
-            board[i // 9][i % 9] = 0
-
-
 class SudokuSolver:
     def __init__(self, board: list[list[int]]) -> None:
         self.board = board
         self.EMPTY_CELL = 0
+
+    def solve_multiple(self) -> int:
+        empty = self._find_empty()
+        if empty is None:
+            return 1
+
+        counter = 0
+        row, col = empty
+        for num in range(1, 10, 1):
+            if self._is_valid(num, row, col):
+                self.board[row][col] = num
+                counter += self.solve_multiple()
+                self.board[row][col] = self.EMPTY_CELL
+        return counter
 
     def solve(self) -> bool:
         """Recursive solver using backtracking"""
@@ -106,25 +100,50 @@ class SudokuSolver:
                     return (r, c)
         return None
 
-    def _is_valid(self, num: int, row_index: int, column_index: int) -> bool:
+    def _is_valid(self, num: int, y: int, x: int) -> bool:
         """Check if num is a valid number for the row, column and box"""
 
         # Check row and column
-        if num in self.board[row_index]:
+        if num in self.board[y]:
             return False
-        if num in (self.board[i][column_index] for i in range(9)):
+        if num in (self.board[i][x] for i in range(9)):
             return False
 
         # Check 3x3 box
-        x0 = (row_index // 3) * 3
-        y0 = (column_index // 3) * 3
+        x0 = (y // 3) * 3
+        y0 = (x // 3) * 3
         if num in (self.board[x0+c][y0+r] for c in range(3) for r in range(3)):
             return False
+
         return True
+
+
+class BoardGenerator:
+    def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
+        self._solution = solution
+
+    def create(self, max_iterations: int = 1) -> list[list[int]] | None:
+        for _ in range(max_iterations):
+            board = [list(row) for row in self._solution]
+            self._unfill_cells(board, 20)
+            board_copy = deepcopy(board)
+
+            if SudokuSolver(board).solve():
+                return board_copy
+
+        return None
+
+    def _unfill_cells(self, board: list[list[int]], unfill_count: int = 0) -> None:
+        for i in random.sample(range(81), unfill_count):
+            board[i // 9][i % 9] = 0
+
+
 
 if __name__ == "__main__":
     puzzle = [
-        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        # [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+
         [6, 0, 0, 1, 9, 5, 0, 0, 0],
         [0, 9, 8, 0, 0, 0, 0, 6, 0],
         [8, 0, 0, 0, 6, 0, 0, 0, 3],
@@ -137,9 +156,10 @@ if __name__ == "__main__":
 
     solver = SudokuSolver(board=puzzle)
     solver.solve()
+    # print(solver.solve_multiple())
     # for row in solver.board:
         # print(row)
-    new_board = BoardGenerator(tuple(tuple(row) for row in solver.board)).create()
+    new_board = BoardGenerator(tuple(tuple(row) for row in solver.board)).create(2)
     if new_board:
         for row in new_board:
             print(row)
