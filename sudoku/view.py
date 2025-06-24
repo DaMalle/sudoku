@@ -40,7 +40,7 @@ class Board(tk.Canvas):
             )
 
         for i in range(10):
-            if i % 3 == 0: # is ith line a box border line
+            if i % 3 == 0: # is ith line a subgrid border line
                 _draw_vertical(index=i, fill="black", width=2)
                 _draw_horizontal(index=i, fill="black", width=2)
             else:
