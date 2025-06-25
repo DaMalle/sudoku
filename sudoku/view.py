@@ -1,19 +1,16 @@
 import tkinter as tk
-from enum import Enum
-
-
-class Length(Enum):
-    """Different side lengths for the sudoku board"""
-    MARGIN = 20
-    CELL = 50
-    GRID = CELL * 9
-    BOARD = MARGIN + GRID + MARGIN
 
 
 class Board(tk.Canvas):
     def __init__(self, root) -> None:
         super().__init__(root)
         self.root = root
+
+        self._MARGIN = 20
+        self._CELL_WIDTH = 50
+        self._GRID_WIDTH = 9 * self._CELL_WIDTH
+        self._BOARD_WIDTH = self._MARGIN * 2 + self._GRID_WIDTH
+
         self._configure_widget()
         self._draw()
         self.draw_cursor(0, 0)
@@ -23,19 +20,19 @@ class Board(tk.Canvas):
 
         def _draw_vertical(index: int, fill: str, width: int) -> None:
             self.create_line(
-                Length.MARGIN.value + index*Length.CELL.value,
-                Length.MARGIN.value,
-                Length.MARGIN.value + index*Length.CELL.value,
-                Length.BOARD.value - Length.MARGIN.value,
+                self._MARGIN + index * self._CELL_WIDTH,
+                self._MARGIN,
+                self._MARGIN + index * self._CELL_WIDTH,
+                self._BOARD_WIDTH - self._MARGIN,
                 fill=fill, width=width
             )
 
         def _draw_horizontal(index: int, fill: str, width: int) -> None:
             self.create_line(
-                Length.MARGIN.value,
-                Length.MARGIN.value + index*Length.CELL.value,
-                Length.BOARD.value - Length.MARGIN.value,
-                Length.MARGIN.value + index*Length.CELL.value,
+                self._MARGIN,
+                self._MARGIN + index * self._CELL_WIDTH,
+                self._BOARD_WIDTH - self._MARGIN,
+                self._MARGIN + index * self._CELL_WIDTH,
                 fill=fill, width=width
             )
 
@@ -47,31 +44,29 @@ class Board(tk.Canvas):
                 _draw_vertical(index=i, fill="gray", width=1)
                 _draw_horizontal(index=i, fill="gray", width=1)
 
-
     def _configure_widget(self) -> None:
         self["bg"] = "white"
-        self["width"] = Length.BOARD.value
-        self["height"] = Length.BOARD.value
+        self["width"] = self._BOARD_WIDTH
+        self["height"] = self._BOARD_WIDTH
 
     def draw_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
 
         self.delete("cursor") # delete old cursor if any
 
-        y0 = Length.MARGIN.value + y * Length.CELL.value
-        x0 = Length.MARGIN.value + x * Length.CELL.value
+        # x0, y0 represents the top left corner of the cell x, y are in
+        y0 = self._MARGIN + y * self._CELL_WIDTH
+        x0 = self._MARGIN + x * self._CELL_WIDTH
 
-        self.create_rectangle(
+        self.create_rectangle( # the 1's keep the rectangle within the cell boarder
             x0 + 1,
             y0 + 1,
-            x0 + Length.CELL.value - 1,
-            y0 + Length.CELL.value - 1,
+            x0 + self._CELL_WIDTH - 1,
+            y0 + self._CELL_WIDTH - 1,
             width=2, outline="red", tags="cursor")
 
 
-
-
-class MainApp(tk.Tk):
+class GameView(tk.Tk):
     """Root of the GUI"""
 
     def __init__(self) -> None:
@@ -86,5 +81,4 @@ class MainApp(tk.Tk):
 
     def _configure_widget(self) -> None:
         self.title("Sudoku")
-        # self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}")
         self.geometry("1000x1000")

@@ -26,7 +26,7 @@ class GameController:
                 self.process_insert_number(selected_row, selected_column, number)
 
 
-    def handle_move_navigation(self, row_delta: int, column_delta: int) -> None:
+    def handle_move_cursor(self, row_delta: int, column_delta: int) -> None:
         """Handle arrow key navigation"""
 
         current_row, current_column = self.game_view.get_selected_cell()
@@ -37,7 +37,7 @@ class GameController:
             new_row = max(lower, min(upper, current_row + row_delta))
             new_column = max(lower, min(upper, current_column + column_delta))
 
-            self.game_view.update_selected_cell(new_row, new_column)
+            self.game_view.update_cursor(new_row, new_column)
 
     def process_insert_number(self, row, column, number) -> None:
         """Process inserting a number into the selected cell"""
