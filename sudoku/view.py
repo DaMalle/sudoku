@@ -2,10 +2,9 @@ import tkinter as tk
 
 
 class Board(tk.Canvas):
-    def __init__(self, root, initial_board) -> None:
+    def __init__(self, root, initial_board_values) -> None:
         super().__init__(root)
-        self.root = root
-        self.initial_board = initial_board
+        self.root: tk.Tk | tk.Frame = root
 
         self._MARGIN = 20
         self._CELL_WIDTH = 50
@@ -13,52 +12,9 @@ class Board(tk.Canvas):
         self._BOARD_WIDTH = self._MARGIN * 2 + self._GRID_WIDTH
 
         self._configure_widget()
-        self._draw()
+        self._draw_initial_values(initial_board_values)
+        self._draw_grid_lines()
         self.draw_cursor(0, 0)
-
-    def _draw(self) -> None:
-        """Draw the grid lines for the sudoku board"""
-
-        self._draw_initial_board()
-
-        for i in range(10):
-            if i % 3 == 0: # is ith line a subgrid border line
-                self._draw_vertical(index=i, fill="black", width=2)
-                self._draw_horizontal(index=i, fill="black", width=2)
-            else:
-                self._draw_vertical(index=i, fill="gray", width=1)
-                self._draw_horizontal(index=i, fill="gray", width=1)
-
-    def _draw_vertical(self, index: int, fill: str, width: int) -> None:
-        self.create_line(
-            self._MARGIN + index * self._CELL_WIDTH,
-            self._MARGIN,
-            self._MARGIN + index * self._CELL_WIDTH,
-            self._BOARD_WIDTH - self._MARGIN,
-            fill=fill, width=width
-        )
-
-    def _draw_horizontal(self, index: int, fill: str, width: int) -> None:
-        self.create_line(
-            self._MARGIN,
-            self._MARGIN + index * self._CELL_WIDTH,
-            self._BOARD_WIDTH - self._MARGIN,
-            self._MARGIN + index * self._CELL_WIDTH,
-            fill=fill, width=width
-        )
-
-    def _draw_initial_board(self) -> None:
-        for iy, row in enumerate(self.initial_board):
-            for ix, number in enumerate(row):
-                if number != 0:
-                    x = ix * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
-                    y = iy * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
-                    self.create_text(x, y, text=number, font=("Arial", self._CELL_WIDTH // 4))
-
-    def _configure_widget(self) -> None:
-        self["bg"] = "white"
-        self["width"] = self._BOARD_WIDTH
-        self["height"] = self._BOARD_WIDTH
 
     def draw_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
@@ -76,6 +32,57 @@ class Board(tk.Canvas):
             y0 + self._CELL_WIDTH - 1,
             width=2, outline="red", tags="cursor")
 
+    def update_cell(self, x: int, y: int, number: int) -> None:
+        self.delete(f"cell{x}{y}")
+
+        self.create_text(
+            x * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2,
+            y * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2,
+            text=number, tags=f"cell{x}{y}", font=("Arial", self._CELL_WIDTH // 4)
+        )
+
+    def _configure_widget(self) -> None:
+        self["bg"] = "white"
+        self["width"] = self._BOARD_WIDTH
+        self["height"] = self._BOARD_WIDTH
+
+    def _draw_grid_lines(self) -> None:
+        """Draw the grid lines for the sudoku board"""
+
+        for i in range(10):
+            if i % 3 == 0: # is ith line a subgrid border line
+                self._draw_vertical_line(index=i, fill="black", width=2)
+                self._draw_horizontal_line(index=i, fill="black", width=2)
+            else:
+                self._draw_vertical_line(index=i, fill="gray", width=1)
+                self._draw_horizontal_line(index=i, fill="gray", width=1)
+
+    def _draw_vertical_line(self, index: int, fill: str, width: int) -> None:
+        self.create_line(
+            self._MARGIN + index * self._CELL_WIDTH,
+            self._MARGIN,
+            self._MARGIN + index * self._CELL_WIDTH,
+            self._BOARD_WIDTH - self._MARGIN,
+            fill=fill, width=width
+        )
+
+    def _draw_horizontal_line(self, index: int, fill: str, width: int) -> None:
+        self.create_line(
+            self._MARGIN,
+            self._MARGIN + index * self._CELL_WIDTH,
+            self._BOARD_WIDTH - self._MARGIN,
+            self._MARGIN + index * self._CELL_WIDTH,
+            fill=fill, width=width
+        )
+
+    def _draw_initial_values(self, initial_board) -> None:
+        for iy, row in enumerate(initial_board):
+            for ix, number in enumerate(row):
+                if number != 0:
+                    x = ix * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
+                    y = iy * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
+                    self.create_text(x, y, text=number, font=("Arial", self._CELL_WIDTH // 4))
+
 
 class GameView(tk.Tk):
     """Root of the GUI"""
@@ -92,6 +99,8 @@ class GameView(tk.Tk):
     def _draw(self) -> None:
 
         board = Board(self, self.initial_board)
+        board.update_cell(2, 4, number=8)
+        board.update_cell(2, 4, number=5)
         board.pack()
 
     def _configure_widget(self) -> None:
