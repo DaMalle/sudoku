@@ -9,7 +9,8 @@ A simple Sudoku game built using Python's standard libraries, with a graphical u
 To create a clean, self-contained Sudoku application that:
 - Generates **valid Sudoku puzzles** with **only one solution**
 - Provides an **interactive GUI** using Tkinter
-- Has multiple difficulties
+- Has multiple difficulties (fx Easy, normal, hard)
+- uses keybinds or buttons on the GUI
 
 ---
 
