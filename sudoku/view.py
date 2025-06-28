@@ -5,6 +5,7 @@ class Board(tk.Canvas):
     def __init__(self, root, initial_board_values) -> None:
         super().__init__(root)
         self.root: tk.Tk | tk.Frame = root
+        self.initial_board_values = initial_board_values
 
         self._MARGIN = 20
         self._CELL_WIDTH = 50
@@ -75,8 +76,8 @@ class Board(tk.Canvas):
             fill=fill, width=width
         )
 
-    def _draw_initial_values(self, initial_board) -> None:
-        for iy, row in enumerate(initial_board):
+    def _draw_initial_values(self, initial_board_values) -> None:
+        for iy, row in enumerate(initial_board_values):
             for ix, number in enumerate(row):
                 if number != 0:
                     x = ix * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
