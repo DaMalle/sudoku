@@ -51,4 +51,5 @@ class GameController:
 
 class MenuController:
     def __Init__(self) -> None:
-        pass
+        self.game_levels = ["easy", "normal", "hard"]
+        self.default_level = "normal"
