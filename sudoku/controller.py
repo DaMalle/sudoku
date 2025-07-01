@@ -23,7 +23,7 @@ class GameController:
         if self.game_model.is_game_active():
             selected_row, selected_column = self.game_view.get_selected_cell()
             if selected_row is not None and selected_column is not None:
-                self.process_insert_number(selected_row, selected_column, number)
+                self.insert_number(selected_row, selected_column, number)
 
 
     def handle_move_cursor(self, row_delta: int, column_delta: int) -> None:
@@ -39,7 +39,7 @@ class GameController:
 
             self.game_view.update_cursor(new_row, new_column)
 
-    def process_insert_number(self, row, column, number) -> None:
+    def insert_number(self, row, column, number) -> None:
         """Process inserting a number into the selected cell"""
 
         if self.game_model.is_valid_insertion(row, column, number):
