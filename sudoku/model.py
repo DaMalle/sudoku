@@ -15,6 +15,9 @@ class SudokuModel:
     def solution(self) -> tuple[tuple[int, ...], ...] | None:
         return self._solution
 
+    def load_puzzle(self, puzzle: list[list[int]]) -> None:
+        pass
+
 
 class SolutionGenerator:
     def __init__(self, rng=random) -> None:
