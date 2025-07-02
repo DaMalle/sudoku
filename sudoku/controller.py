@@ -1,11 +1,3 @@
-
-
-class SudokuController:
-    def __init__(self, model, view) -> None:
-        self.model = model
-        self.view = view
-
-
 class GameController:
     def __init__(self, game_model, game_view) -> None:
         self.game_model = game_model
@@ -19,30 +11,25 @@ class GameController:
     def _setup_keybinds(self) -> None:
         root = self.game_view
 
-        for i in range(1, 10, 1):
-            root.bind(str(i), lambda _, number=i: self.handle_number_input(number))
+        for key in range(1, 10, 1):
+            root.bind(
+                str(key), lambda _: self.handle_number_input(key)
+            )
 
-        for key in ["<Up>", "w", "k"]:
-            root.bind(key, lambda _: self.handle_move_cursor(0, -1))
+        root.bind("<Up>", lambda _: self.handle_move_cursor(0, -1))
+        root.bind("<Down>", lambda _: self.handle_move_cursor(0, 1))
+        root.bind("<Left>", lambda _: self.handle_move_cursor(-1, 0))
+        root.bind("<Right>", lambda _: self.handle_move_cursor(1, 0))
 
-        for key in ["<Down>", "s", "j"]:
-            root.bind(key, lambda _: self.handle_move_cursor(0, 1))
-
-        for key in ["<Left>", "a", "h"]:
-            root.bind(key, lambda _: self.handle_move_cursor(-1, 0))
-
-        for key in ["<Right>", "d", "l"]:
-            root.bind(key, lambda _: self.handle_move_cursor(1, 0))
-
-    def handle_number_input(self, number) -> None:
+    def handle_number_input(self, number: int) -> None:
         """Handle number key press"""
 
         if self.game_model.is_game_active():
-            selected_row, selected_column = self.game_view.get_selected_cell()
-            if selected_row is not None and selected_column is not None:
-                self.insert_number(selected_row, selected_column, number)
+            selected_x, selected_y = self.game_view.get_selected_cell()
+            if selected_x is not None and selected_y is not None:
+                self.insert_number(selected_x, selected_y, number)
 
-    def insert_number(self, x, y, number) -> None:
+    def insert_number(self, x: int, y: int, number: int) -> None:
         """Process inserting a number into the selected cell"""
 
         if self.game_model.is_valid_insertion(x, y, number):
