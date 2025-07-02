@@ -7,6 +7,9 @@ class Board(tk.Canvas):
         self.root: tk.Tk | tk.Frame = root
         self.initial_board_values = initial_board_values
 
+        self.cursor_x = 0
+        self.cursor_y = 0
+
         self._MARGIN = 20
         self._CELL_WIDTH = 50
         self._GRID_WIDTH = 9 * self._CELL_WIDTH
@@ -15,7 +18,10 @@ class Board(tk.Canvas):
         self._configure_widget()
         self._draw_initial_values(initial_board_values)
         self._draw_grid_lines()
-        self.draw_cursor(0, 0)
+        self.draw_cursor(self.cursor_x, self.cursor_y)
+
+    def get_selected_cell(self) -> tuple[int, int]:
+        return (self.cursor_x, self.cursor_y)
 
     def draw_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
@@ -31,7 +37,10 @@ class Board(tk.Canvas):
             y0 + 1,
             x0 + self._CELL_WIDTH - 1,
             y0 + self._CELL_WIDTH - 1,
-            width=2, outline="red", tags="cursor")
+            width=2, outline="red", tags="cursor"
+        )
+        self.cursor_x = x
+        self.cursor_y = y
 
     def update_cell(self, x: int, y: int, number: int) -> None:
         self.delete(f"cell{x}{y}")
@@ -94,15 +103,11 @@ class GameView(tk.Tk):
         # fill
         self.initial_board = tuple(tuple(0 for _ in range(9)) for _ in range(9))
         self._configure_widget()
-        self._draw()
-        self.mainloop()
 
-    def _draw(self) -> None:
+        self.board = Board(self, self.initial_board)
+        self.board.pack()
 
-        board = Board(self, self.initial_board)
-        board.update_cell(2, 4, number=8)
-        board.update_cell(2, 4, number=5)
-        board.pack()
+
 
     def _configure_widget(self) -> None:
         self.title("Sudoku")
