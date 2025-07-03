@@ -2,10 +2,10 @@ import tkinter as tk
 
 
 class Board(tk.Canvas):
-    def __init__(self, root: tk.Tk | tk.Frame, initial_board_values) -> None:
+    def __init__(self, root: tk.Tk | tk.Frame, board_model) -> None:
         super().__init__(root)
         self.root: tk.Tk | tk.Frame = root
-        self.initial_board_values = initial_board_values
+        self.board_model = board_model
 
         self.cursor_x = 0
         self.cursor_y = 0
@@ -16,17 +16,22 @@ class Board(tk.Canvas):
         self._BOARD_WIDTH = self._MARGIN * 2 + self._GRID_WIDTH
 
         self._configure_widget()
-        self._draw_initial_values(initial_board_values)
+        self._draw_puzzle(board_model)
         self._draw_grid_lines()
-        self.draw_cursor(self.cursor_x, self.cursor_y)
+        self._draw_cursor(self.cursor_x, self.cursor_y)
 
-    def get_selected_cell(self) -> tuple[int, int]:
+    def get_cursor(self) -> tuple[int, int]:
+        """Get cursor location (x, y)"""
+
         return (self.cursor_x, self.cursor_y)
 
-    def draw_cursor(self, x: int, y: int) -> None:
-        """Draws a red square (cursor) at (x,y)"""
-
+    def update_cursor(self, x: int, y: int) -> None:
         self.delete("cursor") # delete old cursor if any
+        self._draw_cursor(x=x, y=y)
+
+
+    def _draw_cursor(self, x: int, y: int) -> None:
+        """Draws a red square (cursor) at (x,y)"""
 
         # x0, y0 represents the top left corner of the cell x, y are in
         y0 = self._MARGIN + y * self._CELL_WIDTH
@@ -85,30 +90,16 @@ class Board(tk.Canvas):
             fill=fill, width=width
         )
 
-    def _draw_initial_values(self, initial_board_values) -> None:
-        for iy, row in enumerate(initial_board_values):
+    def _draw_puzzle(self, board_model) -> None:
+        for iy, row in enumerate(board_model):
             for ix, number in enumerate(row):
-                if number != 0:
-                    x = ix * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
-                    y = iy * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2
-                    self.create_text(x, y, text=number, font=("Arial", self._CELL_WIDTH // 4))
+                self._draw_cell_number(ix, iy, number)
 
-
-class GameView(tk.Tk):
-    """Root of the GUI"""
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        # fill
-        self.initial_board = tuple(tuple(0 for _ in range(9)) for _ in range(9))
-        self._configure_widget()
-
-        self.board = Board(self, self.initial_board)
-        self.board.pack()
-
-
-
-    def _configure_widget(self) -> None:
-        self.title("Sudoku")
-        self.geometry("1000x1000")
+    def _draw_cell_number(self, x, y, number) -> None:
+        if number != 0:
+            self.create_text(
+                # at the center:
+                x * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2,
+                y * self._CELL_WIDTH + self._MARGIN + self._CELL_WIDTH // 2,
+                text=number, font=("Arial", self._CELL_WIDTH // 4)
+            )
