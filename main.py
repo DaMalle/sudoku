@@ -7,6 +7,7 @@ import sudoku.models.board
 
 
 def main():
+    model = sudoku.models.board.PuzzleModel()
     # view = sudoku.view.GameView
     # model = sudoku.model.SudokuModel
     # controller = sudoku.controller.GameController(model, view)
