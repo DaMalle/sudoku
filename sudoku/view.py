@@ -2,7 +2,7 @@ import tkinter as tk
 from enum import Enum
 
 
-class Width:
+class Width: #const values
     MARGIN = 20
     CELL = 50
     GRID = 9 * CELL
@@ -17,23 +17,34 @@ class Difficulty(Enum):
 
 
 class Board(tk.Canvas):
-    def __init__(self, root: tk.Tk, initial_board_values) -> None:
+    def __init__(self, root: tk.Tk, board_model) -> None:
         super().__init__(root)
         self.root = root
-        self.initial_board_values = initial_board_values
+        self.board_model = board_model
 
         self.cursor = (0, 0)
 
         self._configure_widget()
-        self._draw_initial_values(initial_board_values)
         self._draw_grid_lines()
-        self._update_cursor(self.cursor[0], self.cursor[1])
+        self.update_cursor(self.cursor[0], self.cursor[1])
         self.pack()
+
+    def update_view(self) -> None:
+        for iy, row in enumerate(self.board_model):
+            for ix, number in enumerate(row):
+                if number != 0:
+                    self.create_text(
+                        # at the center:
+                        ix * Width.CELL + Width.MARGIN + Width.CELL // 2,
+                        iy * Width.CELL + Width.MARGIN + Width.CELL // 2,
+                        text=number, font=("Arial", Width.CELL // 4)
+                    )
+
 
     def get_cursor(self) -> tuple[int, int]:
         return self.cursor
 
-    def _update_cursor(self, x: int, y: int) -> None:
+    def update_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
 
         self.delete("cursor") # delete old cursor if any
@@ -50,15 +61,6 @@ class Board(tk.Canvas):
             width=2, outline="red", tags="cursor"
         )
         self.cursor = (x, y)
-
-    def update_cell(self, x: int, y: int, number: int) -> None:
-        self.delete(f"cell{x}{y}")
-
-        self.create_text(
-            x * Width.CELL + Width.MARGIN + Width.CELL // 2,
-            y * Width.CELL + Width.MARGIN + Width.CELL // 2,
-            text=number, tags=f"cell{x}{y}", font=("Arial", Width.CELL // 4)
-        )
 
     def _configure_widget(self) -> None:
         self["bg"] = "white"
@@ -95,16 +97,9 @@ class Board(tk.Canvas):
             fill=fill, width=width
         )
 
-    def _draw_initial_values(self, initial_board_values) -> None:
-        for iy, row in enumerate(initial_board_values):
-            for ix, number in enumerate(row):
-                if number != 0:
-                    x = ix * Width.CELL + Width.MARGIN + Width.CELL // 2
-                    y = iy * Width.CELL + Width.MARGIN + Width.CELL // 2
-                    self.create_text(x, y, text=number, font=("Arial", Width.CELL // 4))
 
 class TopBar(tk.Frame):
-    def __init__(self, root: tk.Tk):
+    def __init__(self, root: tk.Tk) -> None:
         super().__init__(root)
         self.root = root
 
@@ -119,9 +114,10 @@ class TopBar(tk.Frame):
 class MainView(tk.Tk):
     """Root of the GUI"""
 
-    def __init__(self) -> None:
+    def __init__(self, model) -> None:
         super().__init__()
         self._configure_settings()
+        self.model = model
 
         self.opt = tk.StringVar(value=Difficulty.EASY.name.title())
         self.options = (d.name.title() for d in Difficulty)
@@ -130,22 +126,13 @@ class MainView(tk.Tk):
         self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
         self.menu.pack(side="left", anchor="center")
 
+        self.board = Board(self, self.model.board)
 
-        # fill
-        self.initial_board = tuple(tuple(0 for _ in range(9)) for _ in range(9))
-
-        self.board = Board(self, self.initial_board)
-
-    def run(self):
+    def run(self) -> None:
         self.mainloop()
-
 
     def _configure_settings(self) -> None:
         self.title("Sudoku")
         self.geometry("1000x1000")
         self["bg"] = "white"
         self["highlightbackground"] = "white"
-
-
-if __name__ == "__main__":
-    MainView().run()
