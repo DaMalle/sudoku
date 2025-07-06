@@ -2,6 +2,7 @@ import tkinter as tk
 from enum import Enum
 
 from sudoku.views.interfaces import IBoardView
+from sudoku.models.interfaces import IBoardModel
 
 
 class Width: #const values
@@ -19,7 +20,7 @@ class Difficulty(Enum):
 
 
 class Board(tk.Canvas, IBoardView):
-    def __init__(self, root: tk.Tk, board_model) -> None:
+    def __init__(self, root: tk.Tk, board_model: IBoardModel) -> None:
         super().__init__(root)
         self.configure_view()
         self.draw_ui()
@@ -44,7 +45,7 @@ class Board(tk.Canvas, IBoardView):
 
         for y in range(9):
             for x in range(9):
-                self._fill_cell(x, y, self.board_model[y][x])
+                self._fill_cell(x, y, self.board_model.get_cell(x, y))
 
     def _fill_cell(self, x, y, cell_model):
         number = cell_model.current
