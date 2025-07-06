@@ -19,22 +19,21 @@ class Difficulty(Enum):
 class Board(tk.Canvas):
     def __init__(self, root: tk.Tk, initial_board_values) -> None:
         super().__init__(root)
-        self.root: tk.Tk | tk.Frame = root
+        self.root = root
         self.initial_board_values = initial_board_values
 
-        self.cursor_x = 0
-        self.cursor_y = 0
+        self.cursor = (0, 0)
 
         self._configure_widget()
         self._draw_initial_values(initial_board_values)
         self._draw_grid_lines()
-        self.draw_cursor(self.cursor_x, self.cursor_y)
+        self._update_cursor(self.cursor[0], self.cursor[1])
         self.pack()
 
-    def get_selected_cell(self) -> tuple[int, int]:
-        return (self.cursor_x, self.cursor_y)
+    def get_cursor(self) -> tuple[int, int]:
+        return self.cursor
 
-    def draw_cursor(self, x: int, y: int) -> None:
+    def _update_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
 
         self.delete("cursor") # delete old cursor if any
@@ -50,8 +49,7 @@ class Board(tk.Canvas):
             y0 + Width.CELL - 1,
             width=2, outline="red", tags="cursor"
         )
-        self.cursor_x = x
-        self.cursor_y = y
+        self.cursor = (x, y)
 
     def update_cell(self, x: int, y: int, number: int) -> None:
         self.delete(f"cell{x}{y}")
