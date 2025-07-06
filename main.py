@@ -1,12 +1,12 @@
-import sudoku.view
-import sudoku.controller
-import sudoku.model
+from sudoku.views.view import MainView
+from sudoku.controllers.controller import MainController
+from sudoku.models.model import MainModel
 
 
 def main():
-    model = sudoku.model.MainModel()
-    view = sudoku.view.MainView(model)
-    controller = sudoku.controller.GameController(model, view)
+    model = MainModel()
+    view = MainView(model)
+    controller = MainController(model, view)
     controller.start_game()
 
 
