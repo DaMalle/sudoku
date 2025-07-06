@@ -1,12 +1,12 @@
 class GameController:
     def __init__(self, game_model, game_view) -> None:
         self.game_model = game_model
-        self.game_view = game_view()
+        self.game_view = game_view
 
     def start_game(self) -> None:
         self._setup_keybinds()
 
-        self.game_view.mainloop()
+        self.game_view.run()
 
     def _setup_keybinds(self) -> None:
         root = self.game_view
