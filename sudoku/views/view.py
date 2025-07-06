@@ -1,6 +1,8 @@
 import tkinter as tk
 from enum import Enum
 
+from sudoku.views.interfaces import IBoardView
+
 
 class Width: #const values
     MARGIN = 20
@@ -16,21 +18,28 @@ class Difficulty(Enum):
     EXPERT = 4
 
 
-class Board(tk.Canvas):
+class Board(tk.Canvas, IBoardView):
     def __init__(self, root: tk.Tk, board_model) -> None:
         super().__init__(root)
+        self.configure_view()
+        self.draw_ui()
+
         self.root = root
         self.board_model = board_model
-
         self.cursor = (0, 0)
 
-        self._configure_widget()
-        self._draw_grid_lines()
         self.update_cursor(self.cursor[0], self.cursor[1])
-        self.update_view()
+        self.update_board()
+
         self.pack()
 
-    def update_view(self) -> None:
+    def configure_view(self) -> None:
+        self["bg"] = "white"
+        # self["highlightbackground"] = "white"
+        self["width"] = Width.BOARD
+        self["height"] = Width.BOARD
+
+    def update_board(self) -> None:
         self.delete("puzzle")
 
         for y in range(9):
@@ -69,13 +78,8 @@ class Board(tk.Canvas):
         )
         self.cursor = (x, y)
 
-    def _configure_widget(self) -> None:
-        self["bg"] = "white"
-        # self["highlightbackground"] = "white"
-        self["width"] = Width.BOARD
-        self["height"] = Width.BOARD
 
-    def _draw_grid_lines(self) -> None:
+    def draw_ui(self) -> None:
         """Draw the grid lines for the sudoku board"""
 
         for i in range(10):
