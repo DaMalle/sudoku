@@ -1,27 +1,44 @@
 import random
 from copy import deepcopy
+from dataclasses import dataclass
 
 
-class SudokuModel:
+@dataclass(frozen=False)
+class Cell:
+    solution: int
+    current: int
+    is_clue: bool = False
+
+
+class MainModel:
     def __init__(self) -> None:
-        self._solution: tuple[tuple[int, ...], ...] | None = None
-        self._game_board: list[list[int]] | None = None
+        self._board: list[list[Cell]] = [
+            [Cell(0, 0, False) for _ in range(9) ] for _ in range(9)
+        ]
+        self.create_puzzle()
 
     @property
-    def board(self) -> list[list[int]] | None:
-        return self._game_board
+    def board(self) -> list[list[Cell]]:
+        return self._board
 
-    @property
-    def solution(self) -> tuple[tuple[int, ...], ...] | None:
-        return self._solution
+    def create_puzzle(self) -> list[list[Cell]]:
+        solution = SolutionGenerator().create()
+        puzzle = PuzzleGenerator(solution).create(difficulty=60)
+        if puzzle == None:
+            return self._board
 
-    def load_puzzle(self, puzzle: list[list[int]]) -> None:
-        pass
+        for y in range(9):
+            for x in range(9):
+                self._board[y][x].solution = solution[y][x]
+                self._board[y][x].current = puzzle[y][x]
+                self._board[y][x].is_clue = (puzzle[y][x] != 0)
+
+        return self._board
 
 
 class SolutionGenerator:
-    def __init__(self, rng=random) -> None:
-        self.rng = rng
+    def __init__(self) -> None:
+        self.rng = random
 
     def create(self) -> tuple[tuple[int, ...], ...]:
         """
@@ -58,7 +75,29 @@ class SolutionGenerator:
         but would work with other types
         """
 
-        return self.rng.sample(numbers, len(numbers))
+        return random.sample(numbers, len(numbers))
+
+
+class PuzzleGenerator:
+    def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
+        self._solution = solution
+
+    def create(self, difficulty: int, max_iterations: int = 1) -> list[list[int]] | None:
+        for _ in range(max_iterations):
+            board = [ [0] * 9 for _ in range(9)]
+            self._fill_cells(board, difficulty)
+            board_copy = deepcopy(board)
+
+            if SudokuSolver(board).solve_multiple() == 1:
+                return board_copy
+
+        return None
+
+    def _fill_cells(self, board: list[list[int]], fill_count: int = 0) -> None:
+        all_cells = 81
+        fill_count = min(all_cells, fill_count)
+        for i in random.sample(range(all_cells), fill_count):
+            board[i // 9][i % 9] = self._solution[i // 9][i % 9]
 
 
 class SudokuSolver:
@@ -119,50 +158,3 @@ class SudokuSolver:
             return False
 
         return True
-
-
-class BoardGenerator:
-    def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
-        self._solution = solution
-
-    def create(self, max_iterations: int = 1) -> list[list[int]] | None:
-        for _ in range(max_iterations):
-            board = [list(row) for row in self._solution]
-            self._unfill_cells(board, 20)
-            board_copy = deepcopy(board)
-
-            if SudokuSolver(board).solve():
-                return board_copy
-
-        return None
-
-    def _unfill_cells(self, board: list[list[int]], unfill_count: int = 0) -> None:
-        for i in random.sample(range(81), unfill_count):
-            board[i // 9][i % 9] = 0
-
-
-
-if __name__ == "__main__":
-    puzzle = [
-        # [5, 3, 0, 0, 7, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-        [6, 0, 0, 1, 9, 5, 0, 0, 0],
-        [0, 9, 8, 0, 0, 0, 0, 6, 0],
-        [8, 0, 0, 0, 6, 0, 0, 0, 3],
-        [4, 0, 0, 8, 0, 3, 0, 0, 1],
-        [7, 0, 0, 0, 2, 0, 0, 0, 6],
-        [0, 6, 0, 0, 0, 0, 2, 8, 0],
-        [0, 0, 0, 4, 1, 9, 0, 0, 5],
-        [0, 0, 0, 0, 8, 0, 0, 7, 9],
-    ]
-
-    solver = SudokuSolver(board=puzzle)
-    solver.solve()
-    # print(solver.solve_multiple())
-    # for row in solver.board:
-        # print(row)
-    new_board = BoardGenerator(tuple(tuple(row) for row in solver.board)).create(2)
-    if new_board:
-        for row in new_board:
-            print(row)

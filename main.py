@@ -6,13 +6,11 @@ import sudoku.model
 
 def main():
 
-    pass
-    # view = sudoku.view.MainView
-    # model = sudoku.model.SudokuModel
+    model = sudoku.model.MainModel()
+    view = sudoku.view.MainView(model)
+    view.run()
     # controller = sudoku.controller.GameController(model, view)
     # controller.start_game()
-
-
 
 
 if __name__ == "__main__":

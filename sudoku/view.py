@@ -27,18 +27,25 @@ class Board(tk.Canvas):
         self._configure_widget()
         self._draw_grid_lines()
         self.update_cursor(self.cursor[0], self.cursor[1])
+        self.update_view()
         self.pack()
 
     def update_view(self) -> None:
-        for iy, row in enumerate(self.board_model):
-            for ix, number in enumerate(row):
-                if number != 0:
-                    self.create_text(
-                        # at the center:
-                        ix * Width.CELL + Width.MARGIN + Width.CELL // 2,
-                        iy * Width.CELL + Width.MARGIN + Width.CELL // 2,
-                        text=number, font=("Arial", Width.CELL // 4)
-                    )
+        self.delete("puzzle")
+
+        for y in range(9):
+            for x in range(9):
+                self._fill_cell(x, y, self.board_model[y][x])
+
+    def _fill_cell(self, x, y, cell_model):
+        number = cell_model.current
+        if number != 0:
+            self.create_text(
+                # at the center:
+                x * Width.CELL + Width.MARGIN + Width.CELL // 2,
+                y * Width.CELL + Width.MARGIN + Width.CELL // 2,
+                text=number, tags="puzzle", font=("Arial", Width.CELL // 4)
+            )
 
 
     def get_cursor(self) -> tuple[int, int]:
