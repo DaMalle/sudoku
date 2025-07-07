@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Callable
 
 
 class IBoardView(ABC):
@@ -20,4 +21,23 @@ class IBoardView(ABC):
 
     @abstractmethod
     def update_board(self) -> None:
+        pass
+
+
+class IMainView(ABC):
+    @property
+    @abstractmethod
+    def board(self) -> IBoardView:
+        pass
+
+    @abstractmethod
+    def show_win_page(self) -> None:
+        pass
+
+    @abstractmethod
+    def run(self) -> None:
+        pass
+
+    @abstractmethod
+    def bind_key(self, key: str, command: Callable) -> None:
         pass

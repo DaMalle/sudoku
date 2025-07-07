@@ -1,12 +1,6 @@
 from abc import ABC, abstractmethod
 
 
-class IBoardModel(ABC):
-    @abstractmethod
-    def get_cell(self, x: int, y: int) -> None:
-        pass
-
-
 class ICellModel(ABC):
     @property
     @abstractmethod
@@ -26,4 +20,10 @@ class ICellModel(ABC):
     @current.setter
     @abstractmethod
     def current(self, value: int) -> None:
+        pass
+
+
+class IBoardModel(ABC):
+    @abstractmethod
+    def get_cell(self, x: int, y: int) -> ICellModel:
         pass

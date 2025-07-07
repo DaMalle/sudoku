@@ -1,7 +1,8 @@
 import tkinter as tk
 from enum import Enum
+from typing import Callable
 
-from sudoku.views.interfaces import IBoardView
+from sudoku.views.interfaces import IBoardView, IMainView
 from sudoku.models.interfaces import IBoardModel
 
 
@@ -20,7 +21,7 @@ class Difficulty(Enum):
 
 
 class Board(tk.Canvas, IBoardView):
-    def __init__(self, root: tk.Tk, board_model: IBoardModel) -> None:
+    def __init__(self, root: tk.Tk, board_model) -> None:
         super().__init__(root)
         self.configure_view()
         self.draw_ui()
@@ -45,7 +46,7 @@ class Board(tk.Canvas, IBoardView):
 
         for y in range(9):
             for x in range(9):
-                self._fill_cell(x, y, self.board_model.get_cell(x, y))
+                self._fill_cell(x, y, self.board_model[y][x])
 
     def _fill_cell(self, x, y, cell_model):
         number = cell_model.current
@@ -123,7 +124,7 @@ class TopBar(tk.Frame):
         self.pack()
 
 
-class MainView(tk.Tk):
+class MainView(tk.Tk, IMainView):
     """Root of the GUI"""
 
     def __init__(self, model) -> None:
@@ -138,7 +139,17 @@ class MainView(tk.Tk):
         self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
         self.menu.pack(side="left", anchor="center")
 
-        self.board = Board(self, self.model.board)
+        self._board = Board(self, self.model.board)
+
+    @property
+    def board(self) -> IBoardView:
+        return self._board
+
+    def show_win_page(self) -> None:
+        print("Won")
+
+    def bind_key(self, key: str, command: Callable):
+        self.bind(key, command)
 
     def run(self) -> None:
         self.mainloop()
