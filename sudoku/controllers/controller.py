@@ -38,6 +38,7 @@ class MainController:
         self.view.bind_key("<Right>", lambda _: self._handle_move_cursor(1, 0))
 
     def _handle_mouse_click(self, event: tk.Event) -> None:
+        top_bar_width = Width.CELL
         if (Width.MARGIN < event.y < Width.GRID + Width.MARGIN and
             Width.MARGIN < event.x < Width.GRID + Width.MARGIN):
             x = (event.x - Width.MARGIN) // Width.CELL

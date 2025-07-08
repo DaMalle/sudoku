@@ -141,6 +141,17 @@ class MainView(tk.Tk):
         self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
         self.menu.pack(side="left", anchor="center")
 
+        self.menu.config(
+            bg="white", fg="black",
+            activebackground="white", activeforeground="black",
+            highlightthickness=1, relief="flat", bd=0
+        )
+        self.menu["menu"].config(
+            bg="white", fg="black",
+            activebackground="white", activeforeground="black",
+            relief="flat", bd=0, tearoff=0
+        )
+
         self._board = BoardView(self, self.model.board_model)
 
     @property
