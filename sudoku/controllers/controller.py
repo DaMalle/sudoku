@@ -36,9 +36,12 @@ class MainController:
     def handle_number_input(self, number: int) -> None:
         """Handle number key press"""
 
-        selected_x, selected_y = self.board_view.get_cursor()
-        if selected_x is not None and selected_y is not None:
-            self.insert_number(selected_x, selected_y, number)
+        x, y = self.board_view.get_cursor()
+        if x is None or y is None:
+            raise ValueError("The cursor is broken")
+
+        elif not self.board_model.get_cell(x, y).is_clue:
+            self.insert_number(x, y, number)
 
     def insert_number(self, x: int, y: int, number: int) -> None:
         """Process inserting a number into the selected cell"""

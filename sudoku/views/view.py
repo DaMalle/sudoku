@@ -3,10 +3,10 @@ from enum import Enum
 from typing import Callable
 
 from sudoku.views.interfaces import IBoardView, IMainView
-from sudoku.models.interfaces import IMainModel, IBoardModel
+from sudoku.models.interfaces import ICellModel, IMainModel, IBoardModel
 
 
-class Width: #const values
+class Width: # const values
     MARGIN = 20
     CELL = 50
     GRID = 9 * CELL
@@ -48,14 +48,16 @@ class Board(tk.Canvas, IBoardView):
             for x in range(9):
                 self._fill_cell(x, y, self.board_model.get_cell(x, y))
 
-    def _fill_cell(self, x, y, cell_model):
-        number = cell_model.current
+    def _fill_cell(self, x, y, cell: ICellModel):
+        number = cell.current
         if number != 0:
             self.create_text(
                 # at the center:
                 x * Width.CELL + Width.MARGIN + Width.CELL // 2,
                 y * Width.CELL + Width.MARGIN + Width.CELL // 2,
-                text=number, tags="puzzle", font=("Arial", Width.CELL // 4)
+                text=number, tags="puzzle",
+                fill="black" if cell.is_clue else "blue",
+                font=("Arial", Width.CELL // 4)
             )
 
 

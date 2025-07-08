@@ -35,6 +35,7 @@ class BoardModel(IBoardModel):
         self._board: list[list[ICellModel]] = [
             [Cell(0, 0, False) for _ in range(9) ] for _ in range(9)
         ]
+        self.create_puzzle(clues=60)
 
     def is_complete(self) -> bool: #TODO implement
         return False
