@@ -32,6 +32,10 @@ class IBoardModel(ABC):
     def is_complete(self) -> bool:
         pass
 
+    @abstractmethod
+    def create_puzzle(self, clues: int) -> None:
+        pass
+
 
 class IMainModel(ABC):
     @property

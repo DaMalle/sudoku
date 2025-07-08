@@ -1,10 +1,12 @@
 import random
 from copy import deepcopy
 
-from sudoku.models.interfaces import IMainModel, IBoardModel, ICellModel
+
+class BoardValue: # constants
+    EMPTY_CELL = 0
 
 
-class Cell(ICellModel):
+class CellModel:
     def __init__(self, solution: int, current: int, is_clue: bool) -> None:
         self._solution = solution
         self._current = current
@@ -30,37 +32,44 @@ class Cell(ICellModel):
         return self._is_clue
 
 
-class BoardModel(IBoardModel):
+class BoardModel:
     def __init__(self) -> None:
-        self._board: list[list[ICellModel]] = [
-            [Cell(0, 0, False) for _ in range(9) ] for _ in range(9)
+        self._board: list[list[CellModel]] = [
+            [CellModel(BoardValue.EMPTY_CELL, BoardValue.EMPTY_CELL, False)
+                for _ in range(9)]
+            for _ in range(9)
         ]
-        self.create_puzzle(clues=60)
+        self.create_puzzle()
 
-    def is_complete(self) -> bool: #TODO implement
-        return False
+    def is_complete(self) -> bool:
+        for y in range(9):
+            for x in range(9):
+                cell = self._board[y][x]
+                if cell.current != cell.solution:
+                    return False
+        return True
 
-    def get_cell(self, x: int, y: int) -> ICellModel:
+    def get_cell(self, x: int, y: int) -> CellModel:
         return self._board[y][x]
 
-    def create_puzzle(self, clues: int) -> None:
+    def create_puzzle(self, clues: int = 80) -> None:
         solution = SolutionGenerator().create()
         puzzle = PuzzleGenerator(solution).create(clues)
         if puzzle:
             for y in range(9):
                 for x in range(9):
-                    self._board[y][x] = Cell(
+                    self._board[y][x] = CellModel(
                         solution[y][x],
                         puzzle[y][x],
-                        (puzzle[y][x] != 0)
+                        (puzzle[y][x] != BoardValue.EMPTY_CELL)
                     )
 
-class MainModel(IMainModel):
+class MainModel:
     def __init__(self) -> None:
-        self._board_model: IBoardModel = BoardModel()
+        self._board_model: BoardModel = BoardModel()
 
     @property
-    def board_model(self) -> IBoardModel:
+    def board_model(self) -> BoardModel:
         return self._board_model
 
 
@@ -110,10 +119,10 @@ class PuzzleGenerator:
     def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
         self._solution = solution
 
-    def create(self, difficulty: int, max_iterations: int = 1) -> list[list[int]] | None:
+    def create(self, clues: int, max_iterations: int = 1) -> list[list[int]] | None:
         for _ in range(max_iterations):
-            board = [ [0] * 9 for _ in range(9)]
-            self._fill_cells(board, difficulty)
+            board = [ [BoardValue.EMPTY_CELL] * 9 for _ in range(9)] # empty 9x9
+            self._fill_cells(board, clues)
             board_copy = deepcopy(board)
 
             if SudokuSolver(board).solve_multiple() == 1:
@@ -124,6 +133,7 @@ class PuzzleGenerator:
     def _fill_cells(self, board: list[list[int]], fill_count: int = 0) -> None:
         all_cells = 81
         fill_count = min(all_cells, fill_count)
+
         for i in random.sample(range(all_cells), fill_count):
             board[i // 9][i % 9] = self._solution[i // 9][i % 9]
 
@@ -131,7 +141,6 @@ class PuzzleGenerator:
 class SudokuSolver:
     def __init__(self, board: list[list[int]]) -> None:
         self.board = board
-        self.EMPTY_CELL = 0
 
     def solve_multiple(self) -> int:
         empty = self._find_empty()
@@ -144,7 +153,7 @@ class SudokuSolver:
             if self._is_valid(num, row, col):
                 self.board[row][col] = num
                 counter += self.solve_multiple()
-                self.board[row][col] = self.EMPTY_CELL
+                self.board[row][col] = BoardValue.EMPTY_CELL
         return counter
 
     def solve(self) -> bool:
@@ -160,13 +169,13 @@ class SudokuSolver:
                 self.board[row][col] = num
                 if self.solve():
                     return True
-                self.board[row][col] = self.EMPTY_CELL
+                self.board[row][col] = BoardValue.EMPTY_CELL
         return False
 
     def _find_empty(self) -> tuple[int, int] | None:
         for r in range(9):
             for c in range(9):
-                if self.board[r][c] == self.EMPTY_CELL:
+                if self.board[r][c] == BoardValue.EMPTY_CELL:
                     return (r, c)
         return None
 

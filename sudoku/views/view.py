@@ -2,8 +2,8 @@ import tkinter as tk
 from enum import Enum
 from typing import Callable
 
-from sudoku.views.interfaces import IBoardView, IMainView
-from sudoku.models.interfaces import ICellModel, IMainModel, IBoardModel
+from sudoku.models.model import CellModel, MainModel, BoardModel
+from sudoku.models.model import BoardValue
 
 
 class Width: # const values
@@ -20,8 +20,8 @@ class Difficulty(Enum):
     EXPERT = 4
 
 
-class Board(tk.Canvas, IBoardView):
-    def __init__(self, root: tk.Tk, board_model: IBoardModel) -> None:
+class BoardView(tk.Canvas):
+    def __init__(self, root: tk.Tk, board_model: BoardModel) -> None:
         super().__init__(root)
         self.configure_view()
         self.draw_ui()
@@ -48,9 +48,9 @@ class Board(tk.Canvas, IBoardView):
             for x in range(9):
                 self._fill_cell(x, y, self.board_model.get_cell(x, y))
 
-    def _fill_cell(self, x, y, cell: ICellModel):
+    def _fill_cell(self, x, y, cell: CellModel):
         number = cell.current
-        if number != 0:
+        if number != BoardValue.EMPTY_CELL:
             self.create_text(
                 # at the center:
                 x * Width.CELL + Width.MARGIN + Width.CELL // 2,
@@ -126,13 +126,13 @@ class TopBar(tk.Frame):
         self.pack()
 
 
-class MainView(tk.Tk, IMainView):
+class MainView(tk.Tk):
     """Root of the GUI"""
 
-    def __init__(self, model: IMainModel) -> None:
+    def __init__(self, model: MainModel) -> None:
         super().__init__()
         self._configure_settings()
-        self.model: IMainModel = model
+        self.model: MainModel = model
 
         self.opt = tk.StringVar(value=Difficulty.EASY.name.title())
         self.options = (d.name.title() for d in Difficulty)
@@ -141,10 +141,10 @@ class MainView(tk.Tk, IMainView):
         self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
         self.menu.pack(side="left", anchor="center")
 
-        self._board = Board(self, self.model.board_model)
+        self._board = BoardView(self, self.model.board_model)
 
     @property
-    def board(self) -> IBoardView:
+    def board(self) -> BoardView:
         return self._board
 
     def show_win_page(self) -> None:
