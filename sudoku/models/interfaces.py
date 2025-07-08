@@ -31,3 +31,10 @@ class IBoardModel(ABC):
     @abstractmethod
     def is_complete(self) -> bool:
         pass
+
+
+class IMainModel(ABC):
+    @property
+    @abstractmethod
+    def board_model(self) -> IBoardModel:
+        pass

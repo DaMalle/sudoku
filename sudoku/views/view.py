@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Callable
 
 from sudoku.views.interfaces import IBoardView, IMainView
-from sudoku.models.interfaces import IBoardModel
+from sudoku.models.interfaces import IMainModel, IBoardModel
 
 
 class Width: #const values
@@ -21,7 +21,7 @@ class Difficulty(Enum):
 
 
 class Board(tk.Canvas, IBoardView):
-    def __init__(self, root: tk.Tk, board_model) -> None:
+    def __init__(self, root: tk.Tk, board_model: IBoardModel) -> None:
         super().__init__(root)
         self.configure_view()
         self.draw_ui()
@@ -46,7 +46,7 @@ class Board(tk.Canvas, IBoardView):
 
         for y in range(9):
             for x in range(9):
-                self._fill_cell(x, y, self.board_model[y][x])
+                self._fill_cell(x, y, self.board_model.get_cell(x, y))
 
     def _fill_cell(self, x, y, cell_model):
         number = cell_model.current
@@ -127,10 +127,10 @@ class TopBar(tk.Frame):
 class MainView(tk.Tk, IMainView):
     """Root of the GUI"""
 
-    def __init__(self, model) -> None:
+    def __init__(self, model: IMainModel) -> None:
         super().__init__()
         self._configure_settings()
-        self.model = model
+        self.model: IMainModel = model
 
         self.opt = tk.StringVar(value=Difficulty.EASY.name.title())
         self.options = (d.name.title() for d in Difficulty)
@@ -139,7 +139,7 @@ class MainView(tk.Tk, IMainView):
         self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
         self.menu.pack(side="left", anchor="center")
 
-        self._board = Board(self, self.model.board)
+        self._board = Board(self, self.model.board_model)
 
     @property
     def board(self) -> IBoardView:

@@ -1,7 +1,7 @@
 import random
 from copy import deepcopy
 
-from sudoku.models.interfaces import IBoardModel, ICellModel
+from sudoku.models.interfaces import IMainModel, IBoardModel, ICellModel
 
 
 class Cell(ICellModel):
@@ -54,7 +54,7 @@ class BoardModel(IBoardModel):
                         (puzzle[y][x] != 0)
                     )
 
-class MainModel:
+class MainModel(IMainModel):
     def __init__(self) -> None:
         self._board_model: IBoardModel = BoardModel()
 
