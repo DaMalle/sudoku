@@ -27,3 +27,7 @@ class IBoardModel(ABC):
     @abstractmethod
     def get_cell(self, x: int, y: int) -> ICellModel:
         pass
+
+    @abstractmethod
+    def is_complete(self) -> bool:
+        pass

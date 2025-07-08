@@ -1,39 +1,66 @@
 import random
 from copy import deepcopy
-from dataclasses import dataclass
+
+from sudoku.models.interfaces import IBoardModel, ICellModel
 
 
-@dataclass(frozen=False)
-class Cell:
-    solution: int
-    current: int
-    is_clue: bool = False
+class Cell(ICellModel):
+    def __init__(self, solution: int, current: int, is_clue: bool) -> None:
+        self._solution = solution
+        self._current = current
+        self._is_clue = is_clue
 
+    @property
+    def solution(self) -> int:
+        return self._solution
+
+    @property
+    def current(self) -> int:
+        return self._current
+
+    @current.setter
+    def current(self, value: int) -> None:
+        valid_values = list(range(0, 10, 1))
+        if value not in valid_values:
+            raise ValueError("Tried to insert invalid number")
+        self._current = value
+
+    @property
+    def is_clue(self) -> bool:
+        return self._is_clue
+
+
+class BoardModel(IBoardModel):
+    def __init__(self) -> None:
+        self._board: list[list[ICellModel]] = [
+            [Cell(0, 0, False) for _ in range(9) ] for _ in range(9)
+        ]
+
+    def is_complete(self) -> bool: #TODO implement
+        return False
+
+    def get_cell(self, x: int, y: int) -> ICellModel:
+        return self._board[y][x]
+
+    def create_puzzle(self, clues: int) -> None:
+        solution = SolutionGenerator().create()
+        puzzle = PuzzleGenerator(solution).create(clues)
+        if puzzle:
+            for y in range(9):
+                for x in range(9):
+                    self._board[y][x] = Cell(
+                        solution[y][x],
+                        puzzle[y][x],
+                        (puzzle[y][x] != 0)
+                    )
 
 class MainModel:
     def __init__(self) -> None:
-        self._board: list[list[Cell]] = [
-            [Cell(0, 0, False) for _ in range(9) ] for _ in range(9)
-        ]
-        self.create_puzzle()
+        self._board_model: IBoardModel = BoardModel()
 
     @property
-    def board(self) -> list[list[Cell]]:
-        return self._board
-
-    def create_puzzle(self) -> list[list[Cell]]:
-        solution = SolutionGenerator().create()
-        puzzle = PuzzleGenerator(solution).create(difficulty=60)
-        if puzzle == None:
-            return self._board
-
-        for y in range(9):
-            for x in range(9):
-                self._board[y][x].solution = solution[y][x]
-                self._board[y][x].current = puzzle[y][x]
-                self._board[y][x].is_clue = (puzzle[y][x] != 0)
-
-        return self._board
+    def board_model(self) -> IBoardModel:
+        return self._board_model
 
 
 class SolutionGenerator:
