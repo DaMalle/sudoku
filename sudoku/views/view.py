@@ -149,8 +149,8 @@ class MainView(tk.Tk):
         self.menu["menu"].config(
             bg="white", fg="black",
             activebackground="white", activeforeground="black",
-            relief="flat", bd=0, tearoff=0
-        )
+            relief="flat", bd=0, tearoff=0)
+
 
         self._board = BoardView(self, self.model.board_model)
 
