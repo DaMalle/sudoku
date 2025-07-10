@@ -14,28 +14,27 @@ class Width: # const values
 
 
 class Difficulty(Enum):
-    EASY   = 1
-    MEDIUM = 2
-    HARD   = 3
-    EXPERT = 4
+    EASY   = "Easy"
+    MEDIUM = "Medium"
+    HARD   = "Hard"
+    EXPERT = "Expert"
 
 
 class BoardView(tk.Canvas):
     def __init__(self, root: tk.Tk, board_model: BoardModel) -> None:
         super().__init__(root)
-        self.configure_view()
-        self.draw_ui()
+        self._configure_view()
+        self._draw_ui()
 
-        self.root = root
-        self.board_model = board_model
-        self.cursor = (0, 0)
+        self._board_model = board_model
+        self._cursor = (0, 0)
 
-        self.update_cursor(self.cursor[0], self.cursor[1])
+        self.update_cursor(self._cursor[0], self._cursor[1])
         self.update_board()
 
         self.pack()
 
-    def configure_view(self) -> None:
+    def _configure_view(self) -> None:
         self["bg"] = "white"
         # self["highlightbackground"] = "white"
         self["width"] = Width.BOARD
@@ -46,7 +45,7 @@ class BoardView(tk.Canvas):
 
         for y in range(9):
             for x in range(9):
-                self._fill_cell(x, y, self.board_model.get_cell(x, y))
+                self._fill_cell(x, y, self._board_model.get_cell(x, y))
 
     def _fill_cell(self, x, y, cell: CellModel):
         number = cell.current
@@ -62,7 +61,7 @@ class BoardView(tk.Canvas):
 
 
     def get_cursor(self) -> tuple[int, int]:
-        return self.cursor
+        return self._cursor
 
     def update_cursor(self, x: int, y: int) -> None:
         """Draws a red square (cursor) at (x,y)"""
@@ -80,10 +79,10 @@ class BoardView(tk.Canvas):
             y0 + Width.CELL - 1,
             width=2, outline="red", tags="cursor"
         )
-        self.cursor = (x, y)
+        self._cursor = (x, y)
 
 
-    def draw_ui(self) -> None:
+    def _draw_ui(self) -> None:
         """Draw the grid lines for the sudoku board"""
 
         for i in range(10):
@@ -116,14 +115,46 @@ class BoardView(tk.Canvas):
 class TopBar(tk.Frame):
     def __init__(self, root: tk.Tk) -> None:
         super().__init__(root)
-        self.root = root
 
         self["width"] = Width.BOARD
         self["height"] = Width.CELL
         self["bg"] = "white"
-        # self["highlightbackground"] = "white"
+
         self.pack_propagate(False)
         self.pack()
+
+
+class DifficultyMenu(tk.OptionMenu):
+    def __init__(self, root: tk.Frame) -> None:
+        self._current = tk.StringVar(value=Difficulty.EASY.value)
+        options = (d.value for d in Difficulty)
+        super().__init__(root, self._current, *options)
+
+        self._configure_settings()
+        self.pack(side="left", anchor="center")
+
+    def get_current_difficulty(self) -> Difficulty:
+        return Difficulty(self._current.get())
+
+    def bind_update_difficulty(self, func: Callable) -> None:
+        self._current.trace_add("write", func)
+
+    def _configure_settings(self) -> None:
+        self["bg"] = "white"
+        self["fg"] = "black"
+        self["activeforeground"] = "black"
+        self["activebackground"] = "white"
+        self["highlightthickness"] = 1
+        self["relief"] = "flat"
+        self["bd"] = 0
+
+        self["menu"]["bg"] = "white"
+        self["menu"]["fg"] = "black"
+        self["menu"]["activeforeground"] = "black"
+        self["menu"]["activebackground"] = "white"
+        self["menu"]["relief"] = "flat"
+        self["menu"]["bd"] = 0
+        self["menu"]["tearoff"] = 0
 
 
 class MainView(tk.Tk):
@@ -134,25 +165,14 @@ class MainView(tk.Tk):
         self._configure_settings()
         self.model: MainModel = model
 
-        self.opt = tk.StringVar(value=Difficulty.EASY.name.title())
-        self.options = (d.name.title() for d in Difficulty)
-
         top_bar = TopBar(self)
-        self.menu = tk.OptionMenu(top_bar, self.opt, *self.options)
-        self.menu.pack(side="left", anchor="center")
-
-        self.menu.config(
-            bg="white", fg="black",
-            activebackground="white", activeforeground="black",
-            highlightthickness=1, relief="flat", bd=0
-        )
-        self.menu["menu"].config(
-            bg="white", fg="black",
-            activebackground="white", activeforeground="black",
-            relief="flat", bd=0, tearoff=0)
-
+        self._difficulty_menu = DifficultyMenu(top_bar)
 
         self._board = BoardView(self, self.model.board_model)
+
+    @property
+    def difficulty_menu(self) -> DifficultyMenu:
+        return self._difficulty_menu
 
     @property
     def board(self) -> BoardView:

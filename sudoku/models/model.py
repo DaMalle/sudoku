@@ -15,7 +15,6 @@ class BoardModel:
                 for _ in range(9)]
             for _ in range(9)
         ]
-        self.create_puzzle()
 
     def is_complete(self) -> bool:
         for y in range(9):
