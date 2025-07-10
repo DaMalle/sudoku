@@ -38,12 +38,19 @@ class MainController:
         self.view.bind_key("<Right>", lambda _: self._handle_move_cursor(1, 0))
 
     def _handle_mouse_click(self, event: tk.Event) -> None:
-        if (Width.MARGIN < event.y < Width.GRID + Width.MARGIN and \
-            Width.MARGIN < event.x < Width.GRID + Width.MARGIN) and \
-            event.widget == self.board_view:
-            x = (event.x - Width.MARGIN) // Width.CELL
+        if event.widget == self.board_view:
+            self._move_cursor_with_mouse(event)
+
+    def _move_cursor_with_mouse(self, event: tk.Event) -> None:
+
+        # check if mouse clicked on the board and not the margin around
+        x_is_on_board = (Width.MARGIN < event.x < Width.GRID + Width.MARGIN)
+        y_is_on_board = (Width.MARGIN < event.y < Width.GRID + Width.MARGIN)
+        if x_is_on_board and y_is_on_board:
             y = (event.y - Width.MARGIN) // Width.CELL
+            x = (event.x - Width.MARGIN) // Width.CELL
             self.board_view.update_cursor(x, y)
+
 
     def _handle_number_input(self, number: int) -> None:
         """Handle number key press"""
