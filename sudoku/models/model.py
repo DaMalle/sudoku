@@ -30,14 +30,13 @@ class BoardModel:
     def create_puzzle(self, clues: int = 80) -> None:
         solution = SolutionGenerator().create()
         puzzle = PuzzleGenerator(solution).create(clues)
-        if puzzle:
-            for y in range(9):
-                for x in range(9):
-                    self._board[y][x] = CellModel(
-                        solution[y][x],
-                        puzzle[y][x],
-                        (puzzle[y][x] != BoardValue.EMPTY_CELL)
-                    )
+        for y in range(9):
+            for x in range(9):
+                self._board[y][x] = CellModel(
+                    solution[y][x],
+                    puzzle[y][x],
+                    (puzzle[y][x] != BoardValue.EMPTY_CELL)
+                )
 
 class MainModel:
     def __init__(self) -> None:
@@ -94,16 +93,14 @@ class PuzzleGenerator:
     def __init__(self, solution: tuple[tuple[int, ...], ...]) -> None:
         self._solution = solution
 
-    def create(self, clues: int, max_iterations: int = 1) -> list[list[int]] | None:
-        for _ in range(max_iterations):
+    def create(self, clues: int) -> list[list[int]]:
+        while True:
             board = [ [BoardValue.EMPTY_CELL] * 9 for _ in range(9)] # empty 9x9
             self._fill_cells(board, clues)
             board_copy = deepcopy(board)
 
             if SudokuSolver(board).solve_multiple() == 1:
                 return board_copy
-
-        return None
 
     def _fill_cells(self, board: list[list[int]], fill_count: int = 0) -> None:
         all_cells = 81

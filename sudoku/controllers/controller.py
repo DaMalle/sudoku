@@ -1,7 +1,20 @@
 import tkinter as tk
+from enum import Enum, auto
 
 from sudoku.views.view import Difficulty, MainView, BoardView, Width, DifficultyMenu
 from sudoku.models.model import MainModel, BoardModel
+
+
+class State(Enum):
+    HAS_WON = auto()
+    PLAYING = auto()
+
+
+def run_if_state_is_playing(func):
+    def wrapper(self, *args, **kwargs):
+        if self.state == State.PLAYING:
+            return func(self, *args, **kwargs)
+    return wrapper
 
 
 class MainController:
@@ -12,7 +25,11 @@ class MainController:
         self.board_view: BoardView = self.view.board
         self.difficulty_menu: DifficultyMenu = self.view.difficulty_menu
 
-        self.board_model.create_puzzle(38)
+
+        self.state = State.PLAYING
+
+        self.board_model.create_puzzle(80)
+        # self.board_model.create_puzzle(38)
         self.board_view.update_board()
         self._setup_on_difficulty_change()
 
@@ -61,7 +78,9 @@ class MainController:
 
         self.board_model.create_puzzle(clues=clues)
         self.board_view.update_board()
+        self.state = State.PLAYING
 
+    @run_if_state_is_playing
     def _handle_mouse_click(self, event: tk.Event) -> None:
         if event.widget == self.board_view:
             self._move_cursor_with_mouse(event)
@@ -77,6 +96,7 @@ class MainController:
             self.board_view.update_cursor(x, y)
 
 
+    @run_if_state_is_playing
     def _handle_number_input(self, number: int) -> None:
         """Handle number key press"""
 
@@ -95,7 +115,9 @@ class MainController:
 
         if self.board_model.is_complete():
             self.view.show_win_page()
+            self.state = State.HAS_WON
 
+    @run_if_state_is_playing
     def _handle_move_cursor(self, x_delta: int, y_delta: int) -> None:
         """Handle arrow key navigation"""
 

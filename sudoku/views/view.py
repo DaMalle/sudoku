@@ -42,6 +42,7 @@ class BoardView(tk.Canvas):
 
     def update_board(self) -> None:
         self.delete("puzzle")
+        self.delete("win_screen")
 
         for y in range(9):
             for x in range(9):
@@ -58,6 +59,15 @@ class BoardView(tk.Canvas):
                 fill="black" if cell.is_clue else "blue",
                 font=("Arial", Width.CELL // 4)
             )
+    def draw_win_screen(self) -> None:
+        self.create_rectangle(
+            0, 0, Width.BOARD+1, Width.BOARD+1,
+            fill="white", tags="win_screen"
+        )
+        self.create_text(
+            Width.BOARD // 2, Width.BOARD // 2,
+            text="You Won!", tags="win_screen"
+        )
 
 
     def get_cursor(self) -> tuple[int, int]:
@@ -179,7 +189,7 @@ class MainView(tk.Tk):
         return self._board
 
     def show_win_page(self) -> None:
-        print("Won")
+        self.board.draw_win_screen()
 
     def bind_key(self, key: str, command: Callable):
         self.bind(key, command)
