@@ -24,14 +24,13 @@ class MainController:
         self.view: MainView = view
         self.board_view: BoardView = self.view.board
         self.difficulty_menu: DifficultyMenu = self.view.difficulty_menu
-
-
         self.state = State.PLAYING
 
-        self.board_model.create_puzzle(80)
-        # self.board_model.create_puzzle(38)
-        self.board_view.update_board()
         self._setup_on_difficulty_change()
+        self._setup_new_game()
+
+        # set initial game
+        self._update_difficulty()
 
     def start_game(self) -> None:
         self._setup_keybinds()
@@ -59,13 +58,19 @@ class MainController:
         self.view.bind_key("<Left>", lambda _: self._handle_move_cursor(-1, 0))
         self.view.bind_key("<Right>", lambda _: self._handle_move_cursor(1, 0))
 
+    def _setup_new_game(self) -> None:
+        self.view.new_game_button.set_command(self._update_difficulty)
+
+    def _start_new_game(self) -> None:
+        self.board_model.create_puzzle()
+
     def _setup_on_difficulty_change(self) -> None:
         self.difficulty_menu.bind_update_difficulty(self._update_difficulty)
 
     def _update_difficulty(self, *_) -> None:
         difficulty: Difficulty = self.difficulty_menu.get_current_difficulty()
 
-        clues = 31
+        clues = 38
         match difficulty:
             case Difficulty.EASY:
                 clues = 38

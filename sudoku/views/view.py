@@ -36,7 +36,6 @@ class BoardView(tk.Canvas):
 
     def _configure_view(self) -> None:
         self["bg"] = "white"
-        # self["highlightbackground"] = "white"
         self["width"] = Width.BOARD
         self["height"] = Width.BOARD
 
@@ -134,6 +133,27 @@ class TopBar(tk.Frame):
         self.pack()
 
 
+class NewGameButton(tk.Button):
+    def __init__(self, root: tk.Frame) -> None:
+        super().__init__(root)
+        self._configure_settings()
+        self.pack(side="right", anchor="center")
+
+    def set_command(self, command: Callable) -> None:
+        self["command"] = command
+
+    def _configure_settings(self) -> None:
+        self["height"] = 1
+        self["text"] = "New Game"
+        self["bg"] = "white"
+        self["fg"] = "black"
+        self["activeforeground"] = "black"
+        self["activebackground"] = "white"
+        self["highlightthickness"] = 1
+        self["relief"] = "flat"
+        self["bd"] = 0
+
+
 class DifficultyMenu(tk.OptionMenu):
     def __init__(self, root: tk.Frame) -> None:
         self._current = tk.StringVar(value=Difficulty.EASY.value)
@@ -150,6 +170,7 @@ class DifficultyMenu(tk.OptionMenu):
         self._current.trace_add("write", func)
 
     def _configure_settings(self) -> None:
+        self["height"] = 1
         self["bg"] = "white"
         self["fg"] = "black"
         self["activeforeground"] = "black"
@@ -177,8 +198,13 @@ class MainView(tk.Tk):
 
         top_bar = TopBar(self)
         self._difficulty_menu = DifficultyMenu(top_bar)
+        self._new_game_button = NewGameButton(top_bar)
 
         self._board = BoardView(self, self.model.board_model)
+
+    @property
+    def new_game_button(self) -> NewGameButton:
+        return self._new_game_button
 
     @property
     def difficulty_menu(self) -> DifficultyMenu:
