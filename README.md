@@ -21,7 +21,7 @@ To create a clean, self-contained Sudoku application that:
   2. Adding clues from the solution to an empty board
   3. Check if board has one solution by solving for multiple solutions
   4. If there are multiple solution, redo step 2 and 3.
-- safety measures has not been implemented for infeasible boards (fx too few clues)
+- Safety measures has not been implemented for infeasible boards (fx too few clues)
 
 ---
 
