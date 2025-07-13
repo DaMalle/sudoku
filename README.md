@@ -1,4 +1,4 @@
-# Sudoku Game in Python (Tkinter)
+# Sudoku Game in Python
 
 A simple Sudoku game built using Python's standard libraries, with a graphical user interface made in Tkinter.
 ---
