@@ -113,43 +113,30 @@ class PuzzleGenerator:
 class SudokuSolver:
     def __init__(self, board: list[list[int]]) -> None:
         self.board = board
+        self.empty_cells = self._get_empty_cells()
 
     def solve_multiple(self) -> int:
-        empty = self._find_empty()
-        if empty is None:
+        if self.empty_cells == []:
             return 1
 
         counter = 0
-        row, col = empty
+        x, y = self.empty_cells.pop(0)
         for num in range(1, 10, 1):
-            if self._is_valid(num, row, col):
-                self.board[row][col] = num
+            if self._is_valid(num, y, x):
+                self.board[y][x] = num
                 counter += self.solve_multiple()
-                self.board[row][col] = BoardValue.EMPTY_CELL
+                if self.empty_cells != []:
+                    self.board[y][x] = BoardValue.EMPTY_CELL
+                    self.empty_cells.insert(0, (x, y) )
         return counter
 
-    def solve(self) -> bool:
-        """Recursive solver using backtracking"""
+    def _get_empty_cells(self) -> list[tuple[int, int]]:
+        empty_cells = [
+            (x, y) for x in range(9) for y in range(9)
+            if self.board[y][x] == BoardValue.EMPTY_CELL
+        ]
 
-        empty = self._find_empty()
-        if empty is None:
-            return True
-
-        row, col = empty
-        for num in range(1, 10, 1):
-            if self._is_valid(num, row, col):
-                self.board[row][col] = num
-                if self.solve():
-                    return True
-                self.board[row][col] = BoardValue.EMPTY_CELL
-        return False
-
-    def _find_empty(self) -> tuple[int, int] | None:
-        for r in range(9):
-            for c in range(9):
-                if self.board[r][c] == BoardValue.EMPTY_CELL:
-                    return (r, c)
-        return None
+        return empty_cells
 
     def _is_valid(self, num: int, y: int, x: int) -> bool:
         """Check if num is a valid number for the row, column and box"""
