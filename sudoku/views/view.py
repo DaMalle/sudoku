@@ -7,6 +7,7 @@ from sudoku.models.model import BoardValue
 
 
 class Width: # const values
+    """Contains constant side lengths used in the View"""
     MARGIN = 20
     CELL = 50
     GRID = 9 * CELL
@@ -40,6 +41,9 @@ class BoardView(tk.Canvas):
         self["height"] = Width.BOARD
 
     def update_board(self) -> None:
+        """ Used for updating cells on the board
+        and clearing winscreen after starting new game
+        """
         self.delete("puzzle")
         self.delete("win_screen")
 
@@ -59,6 +63,7 @@ class BoardView(tk.Canvas):
                 font=("Arial", Width.CELL // 4)
             )
     def draw_win_screen(self) -> None:
+        """Draws a white box infront of the board with a text=You Won!"""
         self.create_rectangle(
             0, 0, Width.BOARD+1, Width.BOARD+1,
             fill="white", tags="win_screen"
@@ -123,6 +128,8 @@ class BoardView(tk.Canvas):
 
 class TopBar(tk.Frame):
     def __init__(self, root: tk.Tk) -> None:
+        """Container with the same with as the board"""
+
         super().__init__(root)
 
         self["width"] = Width.BOARD
