@@ -28,6 +28,8 @@ class BoardModel:
         return self._board[y][x]
 
     def create_puzzle(self, clues: int = 80) -> None:
+        if clues < 17: # https://doi.org/10.48550/arXiv.1201.0749
+            raise ValueError("There is no valid sudoku with fewer than 17 clues")
         solution = SolutionGenerator().create()
         puzzle = PuzzleGenerator(solution).create(clues)
         for y in range(9):
