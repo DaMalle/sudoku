@@ -105,6 +105,7 @@ class PuzzleGenerator:
                 return board_copy
 
     def _fill_cells(self, board: list[list[int]], fill_count: int = 0) -> None:
+        """Fill internal board with clues, by sampling indexes and setting cell at the index equal to the given solution"""
         all_cells = 81
         fill_count = min(all_cells, fill_count)
 
