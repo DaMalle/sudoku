@@ -103,7 +103,7 @@ class MainController:
 
     @run_if_state_is_playing
     def _handle_number_input(self, number: int) -> None:
-        """Handle number key press"""
+        """Used for binding (0-9) key press to insert (1-9 or clearing cell) into board"""
 
         x, y = self.board_view.get_cursor()
         if x is None or y is None:
